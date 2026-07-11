@@ -1,0 +1,16 @@
+[project]
+name = "shared"
+version = "0.1.0"
+description = "Paquete de funcionalidades compartidas"
+readme = "README.md"
+authors = [
+    { name = "Javier Fraga García", email = "javierfrga@proton.me" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic-settings>=2.14.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
