@@ -10,7 +10,7 @@ class Producer(ABC):
     """
 
     @abstractmethod
-    async def publish(self, envelop: KafkaEnvelope) -> None:
+    async def publish(self, envelope: KafkaEnvelope) -> None:
         """Publica un evento en el sistema de mensajería.
 
         Args:
