@@ -75,14 +75,14 @@ class BinanceStreamConnector:
                 async for msg in ws:
                     try:
                         parsed = json.loads(msg)
-                        symbol = parsed["data"]["s"]
+                        symbol = parsed["stream"].split("@")[0].upper()
                         envelope = KafkaEnvelope(
                             symbol=symbol,
                             stream_type=self.stream_type,
                             raw_payload=msg,
                         )
-                        logger.info(envelope.model_dump_json())
-                        # self.producer.publish(envelope)
+                        logger.debug(envelope.model_dump_json())
+                        await self.producer.publish(envelope)
                     except (json.JSONDecodeError, KeyError, ValidationError) as e:
                         logger.error(f"Mensaje mal formado: {e}")
                         continue

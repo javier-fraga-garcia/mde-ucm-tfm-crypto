@@ -8,7 +8,7 @@ class StreamType(str, Enum):
 
     AGG_TRADE = "aggTrade"
     BOOK_TICKER = "bookTicker"
-    DEPTH20 = "depth10"
+    DEPTH10 = "depth10"
 
 
 class KafkaEnvelope(BaseModel):

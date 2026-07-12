@@ -22,7 +22,7 @@ class Producer(ABC):
                 este método.
         """
         ...
-    
+
     @abstractmethod
     async def connect(self) -> None:
         """Inicializa la conexión con el sistema de mensajería.
@@ -38,11 +38,10 @@ class Producer(ABC):
 
     @abstractmethod
     async def close(self) -> None:
-        """Publica un evento en el sistema de mensajería.
+        """Libera los recursos asociados al productor.
 
-        Args:
-            envelope: Evento encapsulado que contiene los metadatos y el
-                payload que se enviará al broker.
+        Este método debe cerrar de forma ordenada la conexión con el
+        sistema de mensajería y liberar cualquier recurso utilizado.
 
         Raises:
             NotImplementedError: Si la implementación concreta no define
