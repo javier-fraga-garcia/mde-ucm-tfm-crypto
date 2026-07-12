@@ -11,7 +11,7 @@ class StreamType(str, Enum):
     DEPTH20 = "depth10"
 
 
-class KafkaEnvelop(BaseModel):
+class KafkaEnvelope(BaseModel):
     """
     Estructura del mensaje publicado en Kafka por parte del sistema de ingesta desde el websocket.
 
@@ -24,7 +24,7 @@ class KafkaEnvelop(BaseModel):
             WebSocket, sin parsear.
     """
 
-    ingestion_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    ingestion_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     symbol: str
     stream_type: StreamType
     raw_payload: str

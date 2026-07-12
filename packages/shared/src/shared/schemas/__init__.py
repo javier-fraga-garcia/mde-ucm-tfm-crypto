@@ -1,3 +1,3 @@
-from shared.schemas.kafka_envelop import StreamType, KafkaEnvelop
+from shared.schemas.kafka_envelope import StreamType, KafkaEnvelope
 
-__all__ = ["StreamType", "KafkaEnvelop"]
+__all__ = ["StreamType", "KafkaEnvelope"]
