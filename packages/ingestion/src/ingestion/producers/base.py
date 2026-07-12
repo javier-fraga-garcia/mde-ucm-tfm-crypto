@@ -21,4 +21,31 @@ class Producer(ABC):
             NotImplementedError: Si la implementación concreta no define
                 este método.
         """
-        pass
+        ...
+    
+    @abstractmethod
+    async def connect(self) -> None:
+        """Inicializa la conexión con el sistema de mensajería.
+
+        Este método debe preparar todos los recursos necesarios para
+        permitir la publicación de eventos.
+
+        Raises:
+            NotImplementedError: Si la implementación concreta no define
+                este método.
+        """
+        ...
+
+    @abstractmethod
+    async def close(self) -> None:
+        """Publica un evento en el sistema de mensajería.
+
+        Args:
+            envelope: Evento encapsulado que contiene los metadatos y el
+                payload que se enviará al broker.
+
+        Raises:
+            NotImplementedError: Si la implementación concreta no define
+                este método.
+        """
+        ...
