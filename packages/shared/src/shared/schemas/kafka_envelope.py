@@ -24,7 +24,9 @@ class KafkaEnvelope(BaseModel):
             WebSocket, sin parsear.
     """
 
-    ingestion_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    ingestion_timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     symbol: str
     stream_type: StreamType
     raw_payload: str
