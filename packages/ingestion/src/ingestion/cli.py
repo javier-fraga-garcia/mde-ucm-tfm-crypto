@@ -3,22 +3,27 @@ import asyncio
 import logging
 from ingestion.ws_client import BinanceStreamConnector
 from ingestion.producers import KafkaProducer
+from ingestion.config import IngestionSettings
 from shared.logging import configure_logging
 from shared.schemas import StreamType
 
-configure_logging("ingestion", level="INFO")
+settings = IngestionSettings()
+
+configure_logging("ingestion", level=settings.log_level)
 logger = logging.getLogger(__name__)
 
 
 async def main():
-    producer = KafkaProducer(bootstrap_servers="localhost:9092", topic="kafka-envelope")
+    producer = KafkaProducer(
+        bootstrap_servers=settings.kafka_bootstrap_servers, topic=settings.kafka_topic
+    )
     await producer.connect()
     try:
         connectors = [
             BinanceStreamConnector(
-                base_url="wss://stream.binance.com:9443/stream",
+                base_url=settings.ws_base_url,
                 stream_type=s,
-                symbols=["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+                symbols=settings.symbols,
                 producer=producer,
             )
             for s in StreamType
