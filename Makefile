@@ -1,6 +1,6 @@
 RUFF_VERSION := 0.15.20
 
-.PHONY: lint format fix up down create-topics
+.PHONY: lint format fix up down create-topics run-producer
 
 check:
 	uvx ruff@$(RUFF_VERSION) check .
@@ -21,3 +21,6 @@ down:
 
 create-topics:
 	./create-topics.sh
+
+run-producer:
+	uv run python -m ingestion.cli
