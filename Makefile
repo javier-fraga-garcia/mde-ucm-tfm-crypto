@@ -13,14 +13,9 @@ fix:
 
 up:
 	docker compose up -d
-	sleep 5
-	$(MAKE) create-topics
 
 down:
 	docker compose down -v
-
-create-topics:
-	./create-topics.sh
 
 run-producer:
 	uv run python -m ingestion.cli

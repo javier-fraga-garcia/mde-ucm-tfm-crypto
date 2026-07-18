@@ -1,6 +1,7 @@
 from pydantic import field_validator
+from pydantic_settings import NoDecode
+from typing import Annotated
 from shared.config import BaseSettings
-
 
 class IngestionSettings(BaseSettings):
     """Configuración del servicio de ingesta de datos de mercado.
@@ -19,7 +20,7 @@ class IngestionSettings(BaseSettings):
     """
 
     ws_base_url: str
-    symbols: list[str]
+    symbols: Annotated[list[str], NoDecode]
     kafka_bootstrap_servers: str
     kafka_topic: str
 

@@ -20,6 +20,29 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
       CLUSTER_ID: '6ealAULVRvG5YVVm1PVi4w'
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  create-topics:
+    image: confluentinc/cp-kafka:7.7.1
+    container_name: create-topics
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["kafka-topics"]
+    command:
+      - "--bootstrap-server"
+      - "kafka:29092"
+      - "--create"
+      - "--if-not-exists"
+      - "--topic"
+      - "kafka-envelope"
+      - "--partitions"
+      - "3"
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.7.1
@@ -36,3 +59,14 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
+    
+  ingestion:
+    build:
+      context: .
+      dockerfile: packages/ingestion/Dockerfile
+    container_name: ingestion
+    depends_on:
+      create-topics:
+        condition: service_completed_successfully
+    env_file:
+      - .env
