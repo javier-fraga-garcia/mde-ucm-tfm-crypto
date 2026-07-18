@@ -1,6 +1,6 @@
 RUFF_VERSION := 0.15.20
 
-.PHONY: lint format fix up down create-topics run-producer
+.PHONY: lint format fix up down create-topics run-producer test-ingestion
 
 check:
 	uvx ruff@$(RUFF_VERSION) check .
@@ -19,3 +19,6 @@ down:
 
 run-producer:
 	uv run python -m ingestion.cli
+
+test-ingestion:
+	uv run --package ingestion pytest packages/ingestion/tests/test_config.py 

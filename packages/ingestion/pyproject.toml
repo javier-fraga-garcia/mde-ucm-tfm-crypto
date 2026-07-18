@@ -20,3 +20,8 @@ build-backend = "uv_build"
 
 [tool.uv.sources]
 shared = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

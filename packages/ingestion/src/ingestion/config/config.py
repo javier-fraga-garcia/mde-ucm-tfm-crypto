@@ -3,6 +3,7 @@ from pydantic_settings import NoDecode
 from typing import Annotated
 from shared.config import BaseSettings
 
+
 class IngestionSettings(BaseSettings):
     """Configuración del servicio de ingesta de datos de mercado.
 
