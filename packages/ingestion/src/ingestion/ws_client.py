@@ -1,9 +1,14 @@
-import sys
 import json
 import random
 import websockets
 import logging
 from pydantic import ValidationError
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    wait_random_exponential,
+    stop_after_attempt,
+)
 from shared.schemas import KafkaEnvelope, StreamType
 from ingestion.producers import Producer
 
@@ -45,6 +50,12 @@ class BinanceStreamConnector:
         """
         return [f"{t.lower()}@{self.stream_type.value}" for t in self.symbols]
 
+    @retry(
+        retry=retry_if_exception_type(websockets.ConnectionClosed),
+        wait=wait_random_exponential(multiplier=1, max=60),
+        stop=stop_after_attempt(30),
+        reraise=True,
+    )
     async def run(self) -> None:
         """Inicia la conexión con Binance y procesa los eventos recibidos.
 
@@ -53,9 +64,14 @@ class BinanceStreamConnector:
         se cierre. Cada mensaje válido se encapsula en un
         ``KafkaEnvelope`` y se envía al productor configurado.
 
+        Si la conexión se cierra inesperadamente, se reintenta con backoff
+        exponencial (hasta 30 intentos). Si se agotan los reintentos, o si
+        ocurre cualquier otro error no relacionado con la conexión, la
+        excepción se propaga a quien llame a este método.
+
         Raises:
-            websockets.ConnectionClosed: Si el servidor cierra la conexión.
-            SystemExit: Si ocurre un error inesperado durante la ejecución.
+            websockets.ConnectionClosed: Si se agotan los reintentos de
+                reconexión sin éxito.
         """
         logger.info(f"Conectado a stream {self.stream_type.value}...")
         try:
@@ -87,7 +103,5 @@ class BinanceStreamConnector:
                         logger.error(f"Mensaje mal formado: {e}")
                         continue
         except websockets.ConnectionClosed:
+            logger.error("Error de conexión. Reconectando...")
             raise
-        except Exception as e:
-            logger.critical(f"Error inesperado {e}\nCerrando conexión...")
-            sys.exit(1)

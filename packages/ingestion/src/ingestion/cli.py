@@ -34,3 +34,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logger.info("El usuario interrumpió la ejecución. Saliendo del proceso...")
         sys.exit(0)
+    except Exception as e:
+        logger.error("Error inesperado. Saliendo del programa")
+        logger.error(e)
+        sys.exit(1)
