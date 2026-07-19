@@ -1,6 +1,6 @@
 RUFF_VERSION := 0.15.20
 
-.PHONY: lint format fix up down create-topics run-producer test-ingestion
+.PHONY: lint format fix up down create-topics run-producer test-shared test-shared-cov test-ingestion test-ingestion-cov
 
 check:
 	uvx ruff@$(RUFF_VERSION) check .
@@ -20,5 +20,14 @@ down:
 run-producer:
 	uv run python -m ingestion.cli
 
+test-shared:
+	uv run --package shared pytest packages/shared/tests/*
+
+test-shared-cov:
+	uv run --package shared pytest packages/shared/tests/ --cov=shared 
+
 test-ingestion:
-	uv run --package ingestion pytest packages/ingestion/tests/test_config.py 
+	uv run --package ingestion pytest packages/ingestion/tests/*
+
+test-ingestion-cov:
+	uv run --package ingestion pytest packages/ingestion/tests/ --cov=ingestion 
