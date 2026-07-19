@@ -8,17 +8,17 @@ En términos arquitectónicos, este módulo implementa la fase de ingesta del pi
 
 La elección de un módulo independiente para esta responsabilidad responde a dos objetivos claros:
 
-- mantener la frontera entre la fuente de datos externa y el resto del sistema;
-- facilitar la evolución del diseño sin acoplar el pipeline a un proveedor concreto de datos o a una tecnología concreta de transporte.
+- mantener la frontera entre la fuente de datos externa y el resto del sistema
+- facilitar la evolución del diseño sin acoplar el pipeline a un proveedor concreto de datos o a una tecnología concreta de transporte
 
 ## 2. Contexto dentro del proyecto
 
 Este repositorio implementa una arquitectura de datos orientada a streaming para la evaluación del riesgo en mercados de criptoactivos. Dentro de esa arquitectura, ingestion ocupa el primer eslabón del pipeline:
 
-1. se conecta a una fuente de datos externa;
-2. recibe mensajes en tiempo real;
-3. los valida y encapsula;
-4. los publica en Kafka para su posterior procesamiento.
+1. se conecta a una fuente de datos externa
+2. recibe mensajes en tiempo real
+3. los valida y encapsula
+4. los publica en Kafka para su posterior procesamiento
 
 Por tanto, este módulo es el componente encargado de convertir señales de mercado en eventos digitales estandarizados que pueden ser consumidos por capas posteriores de transformación, almacenamiento o análisis.
 
@@ -40,9 +40,9 @@ La interacción con WebSockets y con Kafka se implementa de forma asíncrona. Es
 
 La implementación utiliza asyncio, lo que permite:
 
-- mantener una conexión activa y continua con el servicio de Binance;
-- gestionar múltiples streams sin bloquear el hilo de ejecución;
-- evitar la sobrecarga asociada a modelos de programación síncrona.
+- mantener una conexión activa y continua con el servicio de Binance
+- gestionar múltiples streams sin bloquear el hilo de ejecución
+- evitar la sobrecarga asociada a modelos de programación síncrona
 
 ### 3.3 Validación de mensajes y estandarización interna
 
@@ -60,11 +60,11 @@ El paquete está organizado en módulos con responsabilidades bien diferenciadas
 
 El módulo cli.py actúa como entry point de la aplicación. Su función es:
 
-- construir el objeto de configuración;
-- inicializar el productor Kafka;
-- crear los conectores para los streams de Binance definidos;
-- lanzar todas las conexiones de forma concurrente;
-- cerrar de forma ordenada los recursos al finalizar la ejecución.
+- construir el objeto de configuración
+- inicializar el productor Kafka
+- crear los conectores para los streams de Binance definidos
+- lanzar todas las conexiones de forma concurrente
+- cerrar de forma ordenada los recursos al finalizar la ejecución
 
 Este módulo es el responsable de orquestar el ciclo de vida completo del servicio.
 
@@ -72,12 +72,12 @@ Este módulo es el responsable de orquestar el ciclo de vida completo del servic
 
 La clase BinanceStreamConnector es el componente central de la ingesta. Encapsula la lógica necesaria para:
 
-- abrir una conexión con el endpoint WebSocket de Binance;
-- suscribirse a uno o varios tickers;
-- recibir mensajes en streaming;
-- extraer el símbolo del evento;
-- crear un KafkaEnvelope;
-- publicar el payload a través del productor configurado.
+- abrir una conexión con el endpoint WebSocket de Binance
+- suscribirse a uno o varios tickers
+- recibir mensajes en streaming
+- extraer el símbolo del evento
+- crear un KafkaEnvelope
+- publicar el payload a través del productor configurado
 
 El conector también incorpora una estrategia de reintento ante interrupciones de red. Cuando la conexión se cierra inesperadamente, el sistema vuelve a intentar la conexión con backoff exponencial y un límite máximo de intentos. Esta decisión mejora la resiliencia del pipeline y evita que una caída temporal del proveedor provoque el fin del servicio.
 
@@ -87,9 +87,9 @@ Este módulo define una interfaz abstracta que representa el contrato de publica
 
 La separación entre interfaz y implementación es una decisión de diseño importante porque permite:
 
-- probar la lógica de ingestión con mocks o implementaciones alternativas;
-- introducir otros brokers o middlewares en el futuro;
-- mantener el código más limpio y extensible.
+- probar la lógica de ingestión con mocks o implementaciones alternativas
+- introducir otros brokers o middlewares en el futuro
+- mantener el código más limpio y extensible
 
 ### 4.4 Implementación Kafka: producers/kafka_producer.py
 
@@ -101,26 +101,26 @@ El uso del símbolo como clave del mensaje es una decisión relevante. Permite q
 
 La configuración del servicio se gestiona mediante un modelo de settings basado en variables de entorno. El uso de un modelo de configuración permite:
 
-- evitar valores hardcodeados;
-- facilitar el despliegue en entornos distintos;
-- integrar el servicio con Docker Compose y sistemas de orquestación.
+- evitar valores hardcodeados
+- facilitar el despliegue en entornos distintos
+- integrar el servicio con Docker Compose y sistemas de orquestación
 
 La configuración contempla los siguientes elementos:
 
-- la URL del WebSocket de Binance;
-- los símbolos que se desean monitorizar;
-- los brokers de Kafka;
-- el topic de destino;
-- el nivel de logging del proceso.
+- la URL del WebSocket de Binance
+- los símbolos que se desean monitorizar
+- los brokers de Kafka
+- el topic de destino
+- el nivel de logging del proceso
 
 ### 4.6 Esquema de mensaje compartido: shared.schemas
 
 El paquete depende de definiciones comunes del módulo shared. En particular, el envelope utilizado para publicar mensajes incorpora:
 
-- un timestamp de ingestión;
-- el símbolo del activo;
-- el tipo de stream;
-- el payload crudo recibido del proveedor.
+- un timestamp de ingestión
+- el símbolo del activo
+- el tipo de stream
+- el payload crudo recibido del proveedor
 
 Esta decisión refuerza la interoperabilidad del sistema y evita que cada componente tenga que definir su propia estructura de mensaje.
 
@@ -140,12 +140,12 @@ flowchart LR
 
 El flujo se puede describir en detalle de la siguiente manera:
 
-1. El servicio inicia una conexión con Binance.
-2. Se suscribe a los streams configurados para los símbolos indicados.
-3. Cada mensaje recibido se analiza y se extrae el símbolo del stream.
-4. El mensaje se encapsula como KafkaEnvelope.
-5. El productor lo envía a Kafka con la clave asociada al símbolo.
-6. Los consumidores posteriores pueden procesar el evento sin depender directamente del formato original de Binance.
+1. El servicio inicia una conexión con Binance
+2. Se suscribe a los streams configurados para los símbolos indicados
+3. Cada mensaje recibido se analiza y se extrae el símbolo del stream
+4. El mensaje se encapsula como KafkaEnvelope
+5. El productor lo envía a Kafka con la clave asociada al símbolo
+6. Los consumidores posteriores pueden procesar el evento sin depender directamente del formato original de Binance
 
 ## 6. Tipos de streams soportados
 
@@ -163,11 +163,11 @@ El servicio obtiene su configuración a partir de variables de entorno. Un ejemp
 
 Variables principales:
 
-- WS_BASE_URL: URL del endpoint WebSocket de Binance.
-- SYMBOLS: lista de símbolos a suscribir, separada por comas.
-- KAFKA_BOOTSTRAP_SERVERS: dirección de los brokers de Kafka.
-- KAFKA_TOPIC: topic de destino.
-- LOG_LEVEL: nivel de logging del proceso.
+- WS_BASE_URL: URL del endpoint WebSocket de Binance
+- SYMBOLS: lista de símbolos a suscribir, separada por comas
+- KAFKA_BOOTSTRAP_SERVERS: dirección de los brokers de Kafka
+- KAFKA_TOPIC: topic de destino
+- LOG_LEVEL: nivel de logging del proceso
 
 Ejemplo de configuración:
 
@@ -181,17 +181,17 @@ LOG_LEVEL=INFO
 
 ### 7.1 Ejecución con Docker
 
-El proyecto incluye un Dockerfile para el paquete ingestion y un servicio en Docker Compose. La imagen construye el entorno del paquete y ejecuta el entry point del módulo. Esta opción resulta útil para despliegues reproducibles y para la validación del pipeline completo en un entorno controlado. Levantando `docker compose up -d` desde el root sin más argumentos, ingestion arranca automáticamente junto al resto de la infraestructura, ya conectado a Kafka mediante la red interna de Docker.
+El proyecto incluye un Dockerfile para el paquete ingestion y un servicio en Docker Compose. La imagen construye el entorno del paquete y ejecuta el entry point del módulo. Esta opción resulta útil para despliegues reproducibles y para la validación del pipeline completo en un entorno controlado. Levantando `docker compose up -d` en el root sin más argumentos, ingestion arranca automáticamente junto al resto de la infraestructura, ya conectado a Kafka mediante la red interna de Docker.
 
 ## 8. Pruebas
 
 El paquete cuenta con una batería de pruebas que cubren los principales componentes:
 
-- validación de la construcción de los identificadores de stream;
-- publicación correcta de mensajes válidos;
-- rechazo de mensajes mal formados;
-- comportamiento del productor Kafka ante conexión y publicación;
-- reintentos de reconexión tras fallos de red.
+- validación de la construcción de los identificadores de stream
+- publicación correcta de mensajes válidos
+- rechazo de mensajes mal formados
+- comportamiento del productor Kafka ante conexión y publicación
+- reintentos de reconexión tras fallos de red
 
 La cobertura de pruebas alcanza el 100% en los módulos de lógica de negocio (`config`, `producers`, `ws_client`). El módulo `cli.py`, al ser el entry point de orquestación, queda deliberadamente fuera del alcance de las pruebas unitarias.
 
@@ -207,10 +207,10 @@ uv run --package ingestion pytest packages/ingestion/tests --cov=ingestion --cov
 
 Kafka se utiliza como canal de distribución porque encaja bien con un patrón de arquitectura orientada a streaming. Permite:
 
-- desacoplar productores y consumidores;
-- soportar picos de volumen de eventos;
-- facilitar la integración con capas posteriores de procesamiento;
-- incorporar un mecanismo de backpressure natural al separar la velocidad de producción de la de consumo. Cuando la velocidad de consumo de las capas posteriores es menor que la de producción, los mensajes se acumulan en el broker en lugar de provocar una caída inmediata del sistema, lo que permite absorber picos de carga y mantener la estabilidad del pipeline incluso cuando la capacidad downstream no es constante.
+- desacoplar productores y consumidores
+- soportar picos de volumen de eventos
+- facilitar la integración con capas posteriores de procesamiento
+- incorporar un mecanismo de backpressure natural al separar la velocidad de producción de la de consumo. Cuando la velocidad de consumo de las capas posteriores es menor que la de producción, los mensajes se acumulan en el broker en lugar de provocar una caída inmediata del sistema, lo que permite absorber picos de carga y mantener la estabilidad del pipeline incluso cuando la capacidad downstream no es constante
 
 ### 9.2 Por qué un envelope interno y por qué no se usa un Schema Registry
 
@@ -230,18 +230,18 @@ La división en módulos busca facilitar la legibilidad, el mantenimiento y la e
 
 El diseño actual es funcional y suficiente para una primera implementación del TFM, pero presenta algunos límites naturales:
 
-- la ingesta está enfocada en un único proveedor externo: Binance;
-- no se implementa todavía un control avanzado de particiones ni de throughput;
-- la gestión de errores se centra en la resiliencia de la conexión, no en la recolección completa de eventos de alta disponibilidad;
-- la lógica de procesamiento posterior queda delegada a componentes downstream.
+- la ingesta está enfocada en un único proveedor externo: Binance
+- no se implementa todavía un control avanzado de particiones ni de throughput
+- la gestión de errores se centra en la resiliencia de la conexión, no en la recolección completa de eventos de alta disponibilidad
+- la lógica de procesamiento posterior queda delegada a componentes downstream
 
 Estas limitaciones no invalidan el diseño, sino que delimitan el alcance presente del módulo. Como extensiones naturales, podrían incorporarse:
 
-- soporte para más exchanges;
-- mecanismos de backpressure más explícitos a nivel de aplicación y particiones;
-- métricas de observabilidad más detalladas;
-- integración con sistemas de control de calidad de datos;
-- adopción de un Schema Registry para gobernanza formal de contratos de datos.
+- soporte para más exchanges
+- mecanismos de backpressure más explícitos a nivel de aplicación y particiones
+- métricas de observabilidad más detalladas
+- integración con sistemas de control de calidad de datos
+- adopción de un Schema Registry para gobernanza formal de contratos de datos
 
 ## 11. Conclusión
 
