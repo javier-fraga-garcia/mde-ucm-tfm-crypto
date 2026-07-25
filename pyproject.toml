@@ -2,4 +2,5 @@
 members = [
     "packages/shared",
     "packages/ingestion",
+    "packages/lakehouse",
 ]

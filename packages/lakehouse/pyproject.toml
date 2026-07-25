@@ -1,0 +1,22 @@
+[project]
+name = "lakehouse"
+version = "0.1.0"
+description = "Paquete para construcción del pipeline en lakehouse"
+readme = "README.md"
+authors = [
+    { name = "Javier Fraga García", email = "javierfrga@proton.me" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "shared",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.uv.sources]
+shared = { workspace = true }

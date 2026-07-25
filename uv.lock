@@ -3,12 +3,13 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-07-17T08:55:38.532714516Z"
+exclude-newer = "2026-07-23T08:46:47.058938905Z"
 exclude-newer-span = "P2D"
 
 [manifest]
 members = [
     "ingestion",
+    "lakehouse",
     "shared",
 ]
 
@@ -180,6 +181,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
 ]
+
+[[package]]
+name = "lakehouse"
+version = "0.1.0"
+source = { editable = "packages/lakehouse" }
+dependencies = [
+    { name = "shared" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "shared", editable = "packages/shared" }]
 
 [[package]]
 name = "packaging"
