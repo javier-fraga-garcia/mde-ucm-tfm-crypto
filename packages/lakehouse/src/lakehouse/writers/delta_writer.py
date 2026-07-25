@@ -12,7 +12,7 @@ class DeltaWriter(Writer):
         table_path: str,
         checkpoint_path: str,
         trigger_interval: str = "30 seconds",
-        partition_by: str | None = None
+        partition_by: str | None = None,
     ):
         super().__init__(spark)
         self.table_path = table_path
@@ -34,7 +34,7 @@ class DeltaWriter(Writer):
         )
 
         if self.partition_by is not None:
-           writer = writer.partitionBy(self.partition_by)
+            writer = writer.partitionBy(self.partition_by)
 
         query = writer.start(path=self.table_path)
         query.awaitTermination()
