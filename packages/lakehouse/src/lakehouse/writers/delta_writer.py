@@ -12,11 +12,13 @@ class DeltaWriter(Writer):
         table_path: str,
         checkpoint_path: str,
         trigger_interval: str = "30 seconds",
+        partition_by: str | None = None
     ):
         super().__init__(spark)
         self.table_path = table_path
         self.checkpoint_path = checkpoint_path
         self.trigger_interval = trigger_interval
+        self.partition_by = partition_by
 
     def write(self, df: DataFrame) -> None:
         """Inicia la escritura en streaming a la tabla Delta y bloquea hasta que termine.
@@ -24,11 +26,15 @@ class DeltaWriter(Writer):
         Args:
             df: DataFrame de streaming a escribir.
         """
-        query = (
+        writer = (
             df.writeStream.format("delta")
             .outputMode("append")
             .option("checkpointLocation", self.checkpoint_path)
             .trigger(processingTime=self.trigger_interval)
-            .start(path=self.table_path)
         )
+
+        if self.partition_by is not None:
+           writer = writer.partitionBy(self.partition_by)
+
+        query = writer.start(path=self.table_path)
         query.awaitTermination()
