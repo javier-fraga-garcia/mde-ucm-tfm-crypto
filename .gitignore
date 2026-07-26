@@ -49,3 +49,5 @@ logs/
 .cache/
 tmp/
 temp/
+
+floci-data/
