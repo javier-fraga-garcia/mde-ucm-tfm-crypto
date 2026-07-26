@@ -98,3 +98,19 @@ services:
         condition: service_completed_successfully
     env_file:
       - .env
+  
+  bronze-job:
+    build:
+      context: .
+      dockerfile: packages/lakehouse/Dockerfile
+    container_name: bronze-job
+    depends_on:
+      create-topics:
+        condition: service_completed_successfully
+      create-bucket:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: 'kafka:29092'
+      S3_ENDPOINT_URL: 'http://floci:4566'
