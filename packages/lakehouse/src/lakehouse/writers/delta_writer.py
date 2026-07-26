@@ -11,7 +11,7 @@ class DeltaWriter(Writer):
         spark: SparkSession,
         table_path: str,
         checkpoint_path: str,
-        trigger_interval: str = "30 seconds",
+        trigger_interval: str,
         partition_by: str | None = None,
     ):
         super().__init__(spark)
