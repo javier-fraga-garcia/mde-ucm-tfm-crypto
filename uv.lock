@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-07-24T10:11:21.003677775Z"
+exclude-newer = "2026-07-24T10:36:53.370477108Z"
 exclude-newer-span = "P2D"
 
 [manifest]
@@ -217,11 +217,23 @@ dependencies = [
     { name = "shared" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "delta-spark", specifier = "==3.3.2" },
     { name = "pyspark", specifier = "==3.5.3" },
     { name = "shared", editable = "packages/shared" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
 ]
 
 [[package]]

@@ -17,8 +17,11 @@ dependencies = [
 requires = ["uv_build>=0.9.26,<0.10.0"]
 build-backend = "uv_build"
 
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-
 [tool.uv.sources]
 shared = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+]

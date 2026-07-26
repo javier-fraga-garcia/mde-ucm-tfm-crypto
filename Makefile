@@ -31,3 +31,9 @@ test-ingestion:
 
 test-ingestion-cov:
 	uv run --package ingestion pytest packages/ingestion/tests/ --cov=ingestion 
+
+test-lakehouse:
+	uv run --package lakehouse pytest packages/lakehouse/tests/*
+
+test-lakehouse-cov:
+	uv run --package lakehouse pytest packages/lakehouse/tests/ --cov=lakehouse 
