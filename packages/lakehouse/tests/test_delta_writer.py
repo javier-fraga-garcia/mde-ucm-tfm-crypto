@@ -39,7 +39,9 @@ def test_write_configures_streaming_writer_correctly():
 
     df.writeStream.format.assert_called_once_with("delta")
     builder.outputMode.assert_called_once_with("append")
-    builder.option.assert_called_once_with("checkpointLocation", "s3a://bucket/checkpoint")
+    builder.option.assert_called_once_with(
+        "checkpointLocation", "s3a://bucket/checkpoint"
+    )
     builder.trigger.assert_called_once_with(processingTime="10 seconds")
     builder.start.assert_called_once_with(path="s3a://bucket/table")
     query.awaitTermination.assert_called_once()
