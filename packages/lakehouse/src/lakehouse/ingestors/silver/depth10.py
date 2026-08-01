@@ -26,7 +26,9 @@ class SilverDepth10Ingestor(Ingestor):
             from_json(col("raw_payload"), DEPTH10_RAW_SCHEMA).alias("payload"),
         )
 
-        bids_df = parsed_df.select(
+        valid_df = parsed_df.filter(col("payload").isNotNull())
+
+        bids_df = valid_df.select(
             col("symbol"),
             col("ingestion_timestamp"),
             col("payload.lastUpdateId").alias("last_update_id"),
@@ -34,7 +36,7 @@ class SilverDepth10Ingestor(Ingestor):
             posexplode(col("payload.bids")).alias("level", "raw_level"),
         )
 
-        asks_df = parsed_df.select(
+        asks_df = valid_df.select(
             col("symbol"),
             col("ingestion_timestamp"),
             col("payload.lastUpdateId").alias("last_update_id"),

@@ -26,7 +26,9 @@ class SilverAggTradeIngestor(Ingestor):
             from_json(col("raw_payload"), AGG_TRADE_RAW_SCHEMA).alias("payload"),
         )
 
-        return parsed_df.select(
+        valid_df = parsed_df.filter(col("payload").isNotNull())
+
+        return valid_df.select(
             col("symbol"),
             col("ingestion_timestamp"),
             col("payload.e").alias("event_type"),
