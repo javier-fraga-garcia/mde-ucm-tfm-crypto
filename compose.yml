@@ -67,7 +67,7 @@ services:
     ports:
       - "4566:4566"
     volumes:
-      - ./floci-data:/app/data
+      - floci-data:/app/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
       interval: 10s
@@ -87,7 +87,7 @@ services:
       AWS_DEFAULT_REGION: us-east-1
     entrypoint: ["aws"]
     command: ["s3", "mb", "s3://lakehouse", "--endpoint-url", "http://floci:4566"]
-    
+
   ingestion:
     build:
       context: .
@@ -98,7 +98,9 @@ services:
         condition: service_completed_successfully
     env_file:
       - .env
-  
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: 'kafka:29092'
+
   bronze-job:
     build:
       context: .
@@ -114,3 +116,55 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: 'kafka:29092'
       S3_ENDPOINT_URL: 'http://floci:4566'
+    command: ["uv", "run", "python", "-m", "lakehouse.jobs.bronze_job"]
+
+  silver-agg-trade-job:
+      build:
+        context: .
+        dockerfile: packages/lakehouse/Dockerfile
+      container_name: silver-agg-trade-job
+      depends_on:
+        bronze-job:
+          condition: service_completed_successfully
+        create-bucket:
+          condition: service_completed_successfully
+      env_file:
+        - .env
+      environment:
+        S3_ENDPOINT_URL: 'http://floci:4566'
+      command: ["uv", "run", "python", "-m", "lakehouse.jobs.silver.silver_agg_trade_job"]
+
+  silver-book-ticker-job:
+    build:
+      context: .
+      dockerfile: packages/lakehouse/Dockerfile
+    container_name: silver-book-ticker-job
+    depends_on:
+      bronze-job:
+        condition: service_completed_successfully
+      create-bucket:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      S3_ENDPOINT_URL: 'http://floci:4566'
+    command: ["uv", "run", "python", "-m", "lakehouse.jobs.silver.silver_book_ticker_job"]
+
+  silver-depth10-job:
+    build:
+      context: .
+      dockerfile: packages/lakehouse/Dockerfile
+    container_name: silver-depth10-job
+    depends_on:
+      bronze-job:
+        condition: service_completed_successfully
+      create-bucket:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      S3_ENDPOINT_URL: 'http://floci:4566'
+    command: ["uv", "run", "python", "-m", "lakehouse.jobs.silver.silver_depth10_job"]
+
+volumes:
+  floci-data:

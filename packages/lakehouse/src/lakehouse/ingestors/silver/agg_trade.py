@@ -1,5 +1,5 @@
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, from_json
+from pyspark.sql.functions import col, from_json, get_json_object
 from pyspark.sql.types import DecimalType
 
 from lakehouse.ingestors.base import Ingestor
@@ -23,7 +23,9 @@ class SilverAggTradeIngestor(Ingestor):
         parsed_df = filtered_df.select(
             col("symbol"),
             col("ingestion_timestamp"),
-            from_json(col("raw_payload"), AGG_TRADE_RAW_SCHEMA).alias("payload"),
+            from_json(
+                get_json_object(col("raw_payload"), "$.data"), AGG_TRADE_RAW_SCHEMA
+            ).alias("payload"),
         )
 
         valid_df = parsed_df.filter(col("payload").isNotNull())

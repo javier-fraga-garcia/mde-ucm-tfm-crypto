@@ -1,5 +1,5 @@
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, from_json, posexplode, lit
+from pyspark.sql.functions import col, from_json, posexplode, lit, get_json_object
 from pyspark.sql.types import DecimalType
 
 from lakehouse.ingestors.base import Ingestor
@@ -23,7 +23,9 @@ class SilverDepth10Ingestor(Ingestor):
         parsed_df = filtered_df.select(
             col("symbol"),
             col("ingestion_timestamp"),
-            from_json(col("raw_payload"), DEPTH10_RAW_SCHEMA).alias("payload"),
+            from_json(
+                get_json_object(col("raw_payload"), "$.data"), DEPTH10_RAW_SCHEMA
+            ).alias("payload"),
         )
 
         valid_df = parsed_df.filter(col("payload").isNotNull())

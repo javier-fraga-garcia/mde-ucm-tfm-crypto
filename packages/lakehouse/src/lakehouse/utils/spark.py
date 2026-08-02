@@ -28,6 +28,7 @@ def get_or_create_spark_session(
             "spark.sql.catalog.spark_catalog",
             "org.apache.spark.sql.delta.catalog.DeltaCatalog",
         )
+        .config("spark.sql.caseSensitive", "true")
         .config("spark.hadoop.fs.s3a.endpoint", s3_endpoint_url)
         .config("spark.hadoop.fs.s3a.access.key", s3_access_key)
         .config("spark.hadoop.fs.s3a.secret.key", s3_secret_key)
