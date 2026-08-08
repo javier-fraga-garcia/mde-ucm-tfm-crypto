@@ -125,7 +125,7 @@ services:
       container_name: silver-agg-trade-job
       depends_on:
         bronze-job:
-          condition: service_completed_successfully
+          condition: service_started
         create-bucket:
           condition: service_completed_successfully
       env_file:
@@ -141,7 +141,7 @@ services:
     container_name: silver-book-ticker-job
     depends_on:
       bronze-job:
-        condition: service_completed_successfully
+        condition: service_started
       create-bucket:
         condition: service_completed_successfully
     env_file:
@@ -157,7 +157,7 @@ services:
     container_name: silver-depth10-job
     depends_on:
       bronze-job:
-        condition: service_completed_successfully
+        condition: service_started
       create-bucket:
         condition: service_completed_successfully
     env_file:
