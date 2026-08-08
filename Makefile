@@ -36,4 +36,4 @@ test-lakehouse:
 	uv run --package lakehouse pytest packages/lakehouse/tests/*
 
 test-lakehouse-cov:
-	uv run --package lakehouse pytest packages/lakehouse/tests/* --cov=lakehouse 
+	uv run --package lakehouse pytest packages/lakehouse/tests/ --cov=lakehouse 
