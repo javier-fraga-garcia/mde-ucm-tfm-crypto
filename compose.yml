@@ -166,5 +166,53 @@ services:
       S3_ENDPOINT_URL: 'http://floci:4566'
     command: ["uv", "run", "python", "-m", "lakehouse.jobs.silver.silver_depth10_job"]
 
+  gold-volatility-job:
+    build:
+      context: .
+      dockerfile: packages/lakehouse/Dockerfile
+    container_name: gold-volatility-job
+    depends_on:
+      silver-agg-trade-job:
+        condition: service_started
+      create-bucket:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      S3_ENDPOINT_URL: 'http://floci:4566'
+    command: ["uv", "run", "python", "-m", "lakehouse.jobs.gold.gold_volatility_job"]
+
+  gold-spread-job:
+    build:
+      context: .
+      dockerfile: packages/lakehouse/Dockerfile
+    container_name: gold-spread-job
+    depends_on:
+      silver-book-ticker-job:
+        condition: service_started
+      create-bucket:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      S3_ENDPOINT_URL: 'http://floci:4566'
+    command: ["uv", "run", "python", "-m", "lakehouse.jobs.gold.gold_spread_job"]
+
+  gold-liquidity-job:
+    build:
+      context: .
+      dockerfile: packages/lakehouse/Dockerfile
+    container_name: gold-liquidity-job
+    depends_on:
+      silver-depth10-job:
+        condition: service_started
+      create-bucket:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      S3_ENDPOINT_URL: 'http://floci:4566'
+    command: ["uv", "run", "python", "-m", "lakehouse.jobs.gold.gold_liquidity_job"]
+
 volumes:
   floci-data:
