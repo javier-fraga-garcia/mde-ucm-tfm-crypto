@@ -21,9 +21,17 @@ class LakehouseSettings(BaseSettings):
     silver_depth10_checkpoint_path: str
     silver_depth10_trigger_interval: str
 
-    gold_table_path: str
-    gold_checkpoint_path: str
-    gold_trigger_interval: str
+    gold_volatility_table_path: str
+    gold_volatility_checkpoint_path: str
+    gold_volatility_trigger_interval: str
+
+    gold_spread_table_path: str
+    gold_spread_checkpoint_path: str
+    gold_spread_trigger_interval: str
+
+    gold_liquidity_table_path: str
+    gold_liquidity_checkpoint_path: str
+    gold_liquidity_trigger_interval: str
 
     s3_endpoint_url: str
     s3_access_key: str
