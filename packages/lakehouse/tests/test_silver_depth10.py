@@ -22,7 +22,16 @@ def _make_df_chain():
     bids_df.unionByName.return_value = combined_df
     combined_df.select.return_value = result_df
 
-    return df, filtered_df, parsed_df, valid_df, bids_df, asks_df, combined_df, result_df
+    return (
+        df,
+        filtered_df,
+        parsed_df,
+        valid_df,
+        bids_df,
+        asks_df,
+        combined_df,
+        result_df,
+    )
 
 
 def test_transform_filters_by_stream_type():
@@ -31,9 +40,14 @@ def test_transform_filters_by_stream_type():
     with (
         patch("lakehouse.ingestors.silver.depth10.col", return_value=MagicMock()),
         patch("lakehouse.ingestors.silver.depth10.from_json", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.depth10.get_json_object", return_value=MagicMock()),
+        patch(
+            "lakehouse.ingestors.silver.depth10.get_json_object",
+            return_value=MagicMock(),
+        ),
         patch("lakehouse.ingestors.silver.depth10.lit", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.depth10.posexplode", return_value=MagicMock()),
+        patch(
+            "lakehouse.ingestors.silver.depth10.posexplode", return_value=MagicMock()
+        ),
     ):
         ingestor = SilverDepth10Ingestor(reader=MagicMock(), writer=MagicMock())
         ingestor.transform(df)
@@ -42,14 +56,23 @@ def test_transform_filters_by_stream_type():
 
 
 def test_transform_unions_bids_and_asks():
-    df, filtered_df, parsed_df, valid_df, bids_df, asks_df, combined_df, result_df = _make_df_chain()
+    df, filtered_df, parsed_df, valid_df, bids_df, asks_df, combined_df, result_df = (
+        _make_df_chain()
+    )
 
     with (
         patch("lakehouse.ingestors.silver.depth10.col", return_value=MagicMock()),
         patch("lakehouse.ingestors.silver.depth10.from_json", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.depth10.get_json_object", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.depth10.lit", return_value=MagicMock()) as mock_lit,
-        patch("lakehouse.ingestors.silver.depth10.posexplode", return_value=MagicMock()),
+        patch(
+            "lakehouse.ingestors.silver.depth10.get_json_object",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "lakehouse.ingestors.silver.depth10.lit", return_value=MagicMock()
+        ) as mock_lit,
+        patch(
+            "lakehouse.ingestors.silver.depth10.posexplode", return_value=MagicMock()
+        ),
     ):
         ingestor = SilverDepth10Ingestor(reader=MagicMock(), writer=MagicMock())
         result = ingestor.transform(df)

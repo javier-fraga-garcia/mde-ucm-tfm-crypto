@@ -1,4 +1,5 @@
 """Fixtures compartidos para los tests de lakehouse."""
+
 import pytest
 from pyspark.sql import SparkSession
 

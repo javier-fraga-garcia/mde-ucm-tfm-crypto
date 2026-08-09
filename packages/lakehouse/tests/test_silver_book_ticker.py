@@ -25,8 +25,13 @@ def test_transform_filters_by_stream_type():
 
     with (
         patch("lakehouse.ingestors.silver.book_ticker.col", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.book_ticker.from_json", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.book_ticker.get_json_object", return_value=MagicMock()),
+        patch(
+            "lakehouse.ingestors.silver.book_ticker.from_json", return_value=MagicMock()
+        ),
+        patch(
+            "lakehouse.ingestors.silver.book_ticker.get_json_object",
+            return_value=MagicMock(),
+        ),
     ):
         ingestor = SilverBookTickerIngestor(reader=MagicMock(), writer=MagicMock())
         ingestor.transform(df)
@@ -39,8 +44,13 @@ def test_transform_extracts_data_field_before_parsing():
 
     with (
         patch("lakehouse.ingestors.silver.book_ticker.col", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.book_ticker.from_json", return_value=MagicMock()) as mock_from_json,
-        patch("lakehouse.ingestors.silver.book_ticker.get_json_object", return_value=MagicMock()) as mock_get_json_object,
+        patch(
+            "lakehouse.ingestors.silver.book_ticker.from_json", return_value=MagicMock()
+        ) as mock_from_json,
+        patch(
+            "lakehouse.ingestors.silver.book_ticker.get_json_object",
+            return_value=MagicMock(),
+        ) as mock_get_json_object,
     ):
         ingestor = SilverBookTickerIngestor(reader=MagicMock(), writer=MagicMock())
         ingestor.transform(df)
@@ -56,8 +66,13 @@ def test_transform_discards_rows_with_null_payload():
 
     with (
         patch("lakehouse.ingestors.silver.book_ticker.col", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.book_ticker.from_json", return_value=MagicMock()),
-        patch("lakehouse.ingestors.silver.book_ticker.get_json_object", return_value=MagicMock()),
+        patch(
+            "lakehouse.ingestors.silver.book_ticker.from_json", return_value=MagicMock()
+        ),
+        patch(
+            "lakehouse.ingestors.silver.book_ticker.get_json_object",
+            return_value=MagicMock(),
+        ),
     ):
         ingestor = SilverBookTickerIngestor(reader=MagicMock(), writer=MagicMock())
         result = ingestor.transform(df)
