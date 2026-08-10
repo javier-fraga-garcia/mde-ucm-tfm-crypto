@@ -1,7 +1,7 @@
 """Tests de contrato: verifican que los StructType parsean payloads reales de Binance."""
 
 import json
-from pyspark.sql.functions import from_json, get_json_object, lit
+from pyspark.sql.functions import from_json, get_json_object
 
 from lakehouse.readers.schemas import (
     AGG_TRADE_RAW_SCHEMA,
