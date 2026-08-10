@@ -34,6 +34,27 @@ El paquete materializa el patrón medallion mediante tres capas de datos, cada u
 
 Esta estructura de capas aporta varios beneficios: cada capa permanece independiente, permitiendo evoluciones aisladas; el debugging es más sencillo porque el historial completo de transformaciones es visible; y la reproducibilidad está garantizada porque todos los estadios intermedios quedan persistidos.
 
+#### Implementación actual de las capas del lakehouse
+
+En la implementación actual del paquete ya se han materializado de forma concreta las siguientes capas y transformaciones:
+
+- Bronze persiste los eventos tal como llegan desde Kafka, incluyendo los metadatos de partición, offset y timestamp del broker.
+- Silver está dividido en tres ingestors especializados para los distintos streams de Binance: aggTrade, bookTicker y depth10.
+- Gold está dividido en tres ingestors orientados a métricas analíticas: volatilidad, spread y liquidez.
+
+El flujo de datos queda resumido de la siguiente manera:
+
+```mermaid
+flowchart LR
+    A[Kafka: kafka-envelope] --> B[Bronze]
+    B --> C[Silver: aggTrade]
+    B --> D[Silver: bookTicker]
+    B --> E[Silver: depth10]
+    C --> F[Gold: volatility]
+    D --> G[Gold: spread]
+    E --> H[Gold: liquidity]
+```
+
 ### 3.2 Procesamiento en streaming mediante Spark Structured Streaming
 
 El lakehouse implementa su procesamiento mediante Spark Structured Streaming, no mediante batch. Esta decisión responde a la naturaleza del pipeline: los datos llegan continuamente desde Kafka, y es deseable que se propaguen a través de las capas con la menor latencia posible, permitiendo análisis y reacciones casi en tiempo real.
@@ -72,6 +93,12 @@ El procesamiento en el lakehouse se organiza alrededor de abstracciones de lectu
 
 Esta arquitectura en capas permite que nueva capas de procesamiento se agreguen o modifiquen sin alterar el proceso fundamental.
 
+### 3.5 Pruebas como contratos de datos
+
+Una decisión de diseño complementaria, especialmente relevante en un lakehouse, es utilizar pruebas automatizadas como mecanismo de contrato de datos. El objetivo no es únicamente comprobar que el código funciona, sino garantizar que la estructura de los datos que circulan entre capas no cambia de forma accidental. En este enfoque, las pruebas verifican que las transformaciones de silver y gold mantengan los nombres, tipos y semántica esperados de las columnas que alimentan a las tablas downstream.
+
+Esta idea es especialmente útil en un entorno de streaming, donde una modificación aparentemente menor en el payload de origen o en una transformación intermedia puede romper el esquema de una tabla y propagarse de forma silenciosa a los consumidores analíticos. Si un cambio rompe el contrato esperado, la prueba falla antes de que el problema afecte al pipeline completo. En esa medida, las pruebas actúan como una capa adicional de protección, complementaria a la trazabilidad, el checkpointing y la persistencia en Delta.
+
 ## 4. Capa bronze: almacenamiento fidedigno de eventos
 
 La capa bronze es el punto de entrada del lakehouse. Su propósito es simple pero crítico: recibir eventos de Kafka y persistirlos íntegramente, sin transformación, en un almacén durable.
@@ -91,15 +118,15 @@ Esta fidelidad a los datos originales es particularmente importante en análisis
 
 Los eventos almacenados en bronze tienen la siguiente estructura:
 
-- **symbol**: Símbolo del activo (BTC, ETH, SOL). Procedente del KafkaEnvelope.
-- **stream_type**: Tipo de stream de Binance (por ejemplo, trade, kline, aggtrade). Procedente del KafkaEnvelope.
-- **timestamp_ingestion**: Timestamp de ingestión, generado por el sistema de ingesta al recibir el evento de Binance. Procedente del KafkaEnvelope.
-- **data**: Campo JSON que contiene el payload completo del evento tal como lo envió Binance. Su estructura varía según stream_type.
+- **symbol**: Símbolo del activo (por ejemplo BTCUSDT, ETHUSDT o SOLUSDT). Procedente del KafkaEnvelope.
+- **stream_type**: Tipo de stream de Binance (por ejemplo aggTrade, bookTicker o depth10). Procedente del KafkaEnvelope.
+- **ingestion_timestamp**: Timestamp de ingestión, generado por el sistema de ingesta al recibir el evento de Binance. Procedente del KafkaEnvelope.
+- **raw_payload**: Campo de texto con el payload completo del evento tal como lo envió Binance, preservado en su forma original.
 - **partition**: Partición de Kafka desde la cual procede el mensaje.
 - **offset**: Offset dentro de esa partición.
 - **kafka_timestamp**: Timestamp asignado por Kafka al mensaje.
 
-La inclusión del campo data como JSON sin esquema predefinido es una decisión deliberada. Permite que bronze sea tolerante a cambios en la estructura de eventos de Binance, sin necesidad de migración de esquema en la tabla Delta. Silver es responsable de extraer, validar y estructurar los campos específicos de cada tipo de stream.
+La inclusión del campo raw_payload como texto JSON sin un esquema predefinido en la tabla bronze es una decisión deliberada. Permite que bronze sea tolerante a cambios en la estructura de eventos de Binance, sin necesidad de migración de esquema en la tabla Delta. Silver es responsable de extraer, validar y estructurar los campos específicos de cada tipo de stream.
 
 ### 4.3 Componentes de la capa bronze
 
@@ -178,6 +205,38 @@ Cada capa (bronze, silver, gold) mantiene su propio directorio de checkpoint. Es
 - Se puedan reescribir datos de una capa sin afectar las siguientes.
 
 Por ejemplo, si silver desarrolla un bug y necesita ser reprocesada desde los datos de bronze, el checkpoint de silver se puede limpiar, mientras bronze continúa ingiriendo datos nuevos.
+
+### 4.5 Capas silver y gold implementadas
+
+La implementación real del paquete ya contempla varias transformaciones concretas y separadas por tipo de stream y propósito analítico.
+
+#### 4.5.1 Silver: transformación de eventos de mercado
+
+La capa silver ya está implementada con tres ingestors distintos:
+
+- **SilverAggTradeIngestor**: filtra los eventos de tipo aggTrade, parsea el payload JSON y convierte los campos clave a tipos numéricos y temporales. El resultado es un conjunto de datos con precio, cantidad, identificadores de trade y marca temporal de ejecución.
+- **SilverBookTickerIngestor**: transforma los eventos bookTicker en una vista más compacta y analizable, con los mejores precios de compra y venta y sus cantidades asociadas.
+- **SilverDepth10Ingestor**: parsea el order book de profundidad y lo aplana en una tabla con una fila por nivel de precio y lado del book (bid/ask), de forma que el análisis de liquidez sea más directo.
+
+Estas transformaciones permiten que bronze mantenga una copia fidedigna del evento original, mientras silver ya ofrece versiones más limpias y estructuradas, adecuadas para análisis posteriores.
+
+#### 4.5.2 Gold: métricas analíticas preparadas para consumo
+
+La capa gold ya incorpora también tres ingestors orientados a métricas de negocio y riesgo:
+
+- **GoldVolatilityIngestor**: calcula volatilidad de precios mediante ventanas temporales de 5 minutos, usando métricas como media, desviación estándar, volumen total y número de trades.
+- **GoldSpreadIngestor**: calcula el spread bid-ask y el mid price agregados por ventana temporal, ofreciendo una vista útil para la monitorización de la liquidez y del comportamiento del mercado.
+- **GoldLiquidityIngestor**: resume la liquidez media por lado del book y ventana temporal, permitiendo evaluar la profundidad del mercado en función de la cantidad disponible por nivel de precio.
+
+#### 4.5.3 Jobs ejecutables por capa
+
+El paquete ya incluye jobs concretos para lanzar cada una de las capas:
+
+- **Bronze**: bronze_job.py, encargado de consumir desde Kafka y escribir la tabla bronze en Delta.
+- **Silver**: silver_agg_trade_job.py, silver_book_ticker_job.py y silver_depth10_job.py.
+- **Gold**: gold_volatility_job.py, gold_spread_job.py y gold_liquidity_job.py.
+
+Esta organización permite ejecutar cada transformación como un proceso independiente y facilita el mantenimiento, el debugging y la escalabilidad del pipeline.
 
 ## 5. Integración con el resto del sistema
 
