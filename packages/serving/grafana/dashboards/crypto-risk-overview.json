@@ -1,0 +1,74 @@
+{
+  "title": "Crypto Risk Overview",
+  "uid": "crypto-risk-overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Volatilidad (stddev_price)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+          "rawSql": "SELECT window_start AS time, symbol, stddev_price FROM gold_volatility ORDER BY window_start",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2 }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Spread medio (avg_spread)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+          "rawSql": "SELECT window_start AS time, symbol, avg_spread FROM gold_spread ORDER BY window_start",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2 }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Liquidez media por nivel (avg_depth_quantity)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+          "rawSql": "SELECT window_start AS time, symbol || ' - ' || side AS metric, avg_depth_quantity FROM gold_liquidity ORDER BY window_start",
+          "format": "time_series",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineWidth": 2 }
+        }
+      }
+    }
+  ]
+}

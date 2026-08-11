@@ -255,6 +255,26 @@ services:
       TIMESCALE_HOST: 'timescaledb'
     command: ["uv", "run", "python", "-m", "serving.main"]
 
+  grafana:
+      image: grafana/grafana:latest
+      hostname: grafana
+      container_name: grafana
+      ports:
+        - "3000:3000"
+      depends_on:
+        timescaledb:
+          condition: service_healthy
+      environment:
+        GF_SECURITY_ADMIN_USER: admin
+        GF_SECURITY_ADMIN_PASSWORD: admin
+        GF_AUTH_ANONYMOUS_ENABLED: 'true'
+        GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      volumes:
+        - grafana-data:/var/lib/grafana
+        - ./packages/serving/grafana/provisioning:/etc/grafana/provisioning
+        - ./packages/serving/grafana/dashboards:/etc/grafana/provisioning/dashboards/json
+
 volumes:
   floci-data:
   timescale-data:
+  grafana-data:
