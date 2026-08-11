@@ -233,6 +233,27 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+  
+  serving:
+    build:
+      context: .
+      dockerfile: packages/serving/Dockerfile
+    container_name: serving
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      gold-volatility-job:
+        condition: service_started
+      gold-spread-job:
+        condition: service_started
+      gold-liquidity-job:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      S3_ENDPOINT_URL: 'http://floci:4566'
+      TIMESCALE_HOST: 'timescaledb'
+    command: ["uv", "run", "python", "-m", "serving.main"]
 
 volumes:
   floci-data:

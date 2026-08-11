@@ -30,8 +30,9 @@ def run_sync_loop(settings: ServingSettings) -> None:
     while True:
         for delta_path, pg_table, key_columns in tables:
             try:
-                sync_table(con, delta_path, pg_table, key_columns)
-                logger.info(f"Sincronizada tabla {pg_table}")
+                synced = sync_table(con, delta_path, pg_table, key_columns)
+                if synced:
+                    logger.info(f"Sincronizada tabla {pg_table}")
             except Exception as e:
                 logger.error(f"Error sincronizando {pg_table}: {e}")
         time.sleep(settings.sync_interval_seconds)
