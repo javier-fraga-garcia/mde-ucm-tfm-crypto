@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.12"
 
 [options]
-exclude-newer = "2026-08-09T08:11:33.346309172Z"
+exclude-newer = "2026-08-09T09:14:14.793285955Z"
 exclude-newer-span = "P2D"
 
 [manifest]
@@ -476,10 +476,22 @@ dependencies = [
     { name = "shared" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "duckdb", specifier = ">=1.5.5" },
     { name = "shared", editable = "packages/shared" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
 ]
 
 [[package]]
