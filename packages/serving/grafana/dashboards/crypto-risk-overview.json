@@ -9,65 +9,158 @@
     "from": "now-6h",
     "to": "now"
   },
+  "templating": {
+    "list": [
+      {
+        "name": "symbol",
+        "label": "Symbol",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "TimescaleDB"
+        },
+        "definition": "SELECT DISTINCT symbol FROM gold_volatility ORDER BY symbol;",
+        "query": "SELECT DISTINCT symbol FROM gold_volatility ORDER BY symbol;",
+        "refresh": 1,
+        "includeAll": false,
+        "multi": true,
+        "options": [],
+        "regex": "",
+        "sort": 1,
+        "hide": 0,
+        "skipUrlSync": false,
+        "current": {
+          "selected": true,
+          "text": [
+            "BTCUSDT"
+          ],
+          "value": [
+            "BTCUSDT"
+          ]
+        }
+      }
+    ]
+  },
   "panels": [
+    {
+      "id": 4,
+      "title": "",
+      "type": "text",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "content": "# Crypto Risk Overview\nSelecciona los símbolos en el filtro superior para actualizar las métricas.",
+        "mode": "markdown"
+      },
+      "transparent": true
+    },
     {
       "id": 1,
       "title": "Volatilidad (stddev_price)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
-      "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "TimescaleDB"
+      },
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "TimescaleDB" },
-          "rawSql": "SELECT window_start AS time, symbol, stddev_price FROM gold_volatility ORDER BY window_start",
-          "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "TimescaleDB"
+          },
+          "rawSql": "SELECT window_start AS time, symbol, stddev_price FROM gold_volatility WHERE symbol IN (${symbol:sqlstring}) ORDER BY window_start",
+          "format": "time_series"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "custom": { "drawStyle": "line", "lineWidth": 2 }
-        }
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2
+          }
+        },
+        "overrides": []
       }
     },
     {
       "id": 2,
       "title": "Spread medio (avg_spread)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
-      "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "TimescaleDB"
+      },
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "TimescaleDB" },
-          "rawSql": "SELECT window_start AS time, symbol, avg_spread FROM gold_spread ORDER BY window_start",
-          "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "TimescaleDB"
+          },
+          "rawSql": "SELECT window_start AS time, symbol, avg_spread FROM gold_spread WHERE symbol IN (${symbol:sqlstring}) ORDER BY window_start",
+          "format": "time_series"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "custom": { "drawStyle": "line", "lineWidth": 2 }
-        }
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2
+          }
+        },
+        "overrides": []
       }
     },
     {
       "id": 3,
       "title": "Liquidez media por nivel (avg_depth_quantity)",
       "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
-      "datasource": { "type": "postgres", "uid": "TimescaleDB" },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "TimescaleDB"
+      },
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "TimescaleDB" },
-          "rawSql": "SELECT window_start AS time, symbol || ' - ' || side AS metric, avg_depth_quantity FROM gold_liquidity ORDER BY window_start",
-          "format": "time_series",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "TimescaleDB"
+          },
+          "rawSql": "SELECT window_start AS time, CONCAT(symbol, ' - ', side) AS metric, avg_depth_quantity FROM gold_liquidity WHERE symbol IN (${symbol:sqlstring}) ORDER BY window_start",
+          "format": "time_series"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "custom": { "drawStyle": "line", "lineWidth": 2 }
-        }
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2
+          }
+        },
+        "overrides": []
       }
     }
   ]
