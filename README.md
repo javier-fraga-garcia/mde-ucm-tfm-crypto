@@ -115,7 +115,7 @@ Desde la raíz del repositorio:
 docker compose up -d
 ```
 
-Este comando levanta la infraestructura necesaria para el pipeline: Kafka, un endpoint compatible con S3 mediante Floci, el servicio de ingestion, los jobs del lakehouse y la capa de serving. El panel de Control Center queda disponible en http://localhost:9021 para inspeccionar los mensajes publicados en tiempo real.
+Este comando levanta la infraestructura necesaria para el pipeline: Kafka, un endpoint compatible con S3 mediante Floci, el servicio de ingestion, los jobs del lakehouse y la capa de serving.
 
 Para más detalle sobre configuración, variables de entorno y ejecución en local, consulta la documentación de cada paquete en los enlaces anteriores.
 
