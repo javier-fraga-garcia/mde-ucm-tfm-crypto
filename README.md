@@ -18,22 +18,7 @@ El proyecto se desarrolla como un monorepo gestionado con uv, donde cada módulo
 
 El sistema sigue un diseño orientado a streaming con una arquitectura en capas que combina ingesta, mensajería, lakehouse, serving y consumo analítico. El flujo completo implementado en este proyecto queda representado a continuación:
 
-```mermaid
-flowchart LR
-    A[Binance WebSocket] --> B[ingestion]
-    B --> C[Kafka]
-    C --> D[lakehouse: Bronze]
-    D --> E[lakehouse: Silver]
-    E --> F[lakehouse: Gold]
-    F --> G[serving]
-    G --> H[TimescaleDB]
-    H --> I[Grafana / dashboards]
-    H --> J[Consultas analíticas]
-
-    K[shared] -. infra transversal .-> B
-    K -. config/logging/schema .-> D
-    K -. config/logging/schema .-> G
-```
+![Diagrama de arquitectura general del pipeline de datos en streaming](./assets/diagrama-tfm.png)
 
 Cada etapa del pipeline se corresponde con un paquete independiente del monorepo:
 
